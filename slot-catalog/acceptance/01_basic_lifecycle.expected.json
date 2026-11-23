@@ -1,0 +1,271 @@
+{
+  "format": "slot-catalog-results/1",
+  "name": "01-basic-lifecycle",
+  "results": [
+    {
+      "result": {
+        "applied": 5,
+        "batch_id": "SETUP",
+        "ok": true,
+        "published": [
+          "V1"
+        ]
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "applied": 3,
+        "batch_id": "AMEND-1",
+        "ok": true,
+        "published": [
+          "V2"
+        ]
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "P-001",
+            "slot": 0,
+            "slot_label": "0000",
+            "title": "第一部分"
+          },
+          "replaced": false,
+          "status": "public",
+          "value": {
+            "attachments": [
+              "补写附件一",
+              "补写附件二"
+            ],
+            "body": "初始正文"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "P-001",
+          "title": "第一部分"
+        },
+        "slot": 0,
+        "slot_label": "0000",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "P-002",
+            "slot": 11,
+            "slot_label": "0011",
+            "title": "第二部分"
+          },
+          "replaced": false,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "占位槽上的正文"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "P-002",
+          "title": "第二部分"
+        },
+        "slot": 11,
+        "slot_label": "0011",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "P-001",
+            "slot": 0,
+            "slot_label": "0000",
+            "title": "第一部分"
+          },
+          "replaced": false,
+          "status": "public",
+          "value": {
+            "attachments": [
+              "补写附件一",
+              "补写附件二"
+            ],
+            "body": "初始正文"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "P-001",
+          "title": "第一部分"
+        },
+        "slot": 0,
+        "slot_label": "0000",
+        "version": "V2"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "count": 2,
+        "entries": [
+          {
+            "booklet": "B1",
+            "part": "P-001",
+            "slot": 0,
+            "slot_label": "0000",
+            "title": "第一部分",
+            "value": {
+              "attachments": [
+                "补写附件一",
+                "补写附件二"
+              ],
+              "body": "初始正文"
+            }
+          },
+          {
+            "booklet": "B1",
+            "part": "P-002",
+            "slot": 11,
+            "slot_label": "0011",
+            "title": "第二部分",
+            "value": {
+              "attachments": [],
+              "body": "占位槽上的正文"
+            }
+          }
+        ],
+        "ok": true,
+        "type": "search_export"
+      },
+      "step": "search_export"
+    },
+    {
+      "result": {
+        "applied": 2,
+        "batch_id": "WITHDRAW",
+        "ok": true,
+        "published": [
+          "V3"
+        ]
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "P-002",
+            "slot": 11,
+            "slot_label": "0011",
+            "title": "第二部分"
+          },
+          "reason": "withdrawn",
+          "replaced": false,
+          "status": "not_public"
+        },
+        "ok": true,
+        "printed": {
+          "part": "P-002",
+          "title": "第二部分"
+        },
+        "slot": 11,
+        "slot_label": "0011",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "error": {
+          "code": "slot_not_printed",
+          "details": {
+            "booklet": "B1",
+            "slot": 11,
+            "version": "V3"
+          },
+          "message": "slot 0011 was not formally listed in version 'V3' of booklet 'B1'"
+        },
+        "ok": false
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "error": {
+          "code": "unknown_version",
+          "details": {
+            "version": "V9"
+          },
+          "message": "unknown version 'V9'"
+        },
+        "ok": false
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "error": {
+          "code": "slot_not_printed",
+          "details": {
+            "booklet": "B1",
+            "slot": 10,
+            "version": "V3"
+          },
+          "message": "slot 0010 was not formally listed in version 'V3' of booklet 'B1'"
+        },
+        "ok": false
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "count": 1,
+        "entries": [
+          {
+            "booklet": "B1",
+            "part": "P-001",
+            "slot": 0,
+            "slot_label": "0000",
+            "title": "第一部分",
+            "value": {
+              "attachments": [
+                "补写附件一",
+                "补写附件二"
+              ],
+              "body": "初始正文"
+            }
+          }
+        ],
+        "ok": true,
+        "type": "search_export"
+      },
+      "step": "search_export"
+    },
+    {
+      "result": {
+        "error": {
+          "batch_id": "STEAL-TOMBSTONE",
+          "code": "slot_occupied",
+          "details": {
+            "slot": 11
+          },
+          "message": "slot 11 is already taken by part 'P-002'",
+          "op_index": 0
+        },
+        "ok": false
+      },
+      "step": "batch"
+    }
+  ]
+}

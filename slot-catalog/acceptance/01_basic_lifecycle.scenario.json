@@ -1,0 +1,55 @@
+{
+  "format": "slot-catalog-scenario/1",
+  "name": "01-basic-lifecycle",
+  "steps": [
+    {
+      "batch": {
+        "batch_id": "SETUP",
+        "ops": [
+          {"op": "add_booklet", "booklet": "B1", "slot_width": 4},
+          {"op": "reserve", "booklet": "B1", "slots": [10, 11]},
+          {"op": "register", "booklet": "B1", "part": "P-001", "title": "第一部分", "body": "初始正文", "approved": true},
+          {"op": "register", "booklet": "B1", "part": "P-002", "slot": 11, "title": "第二部分", "body": "占位槽上的正文", "approved": true},
+          {"op": "publish", "version": "V1"}
+        ]
+      }
+    },
+    {
+      "batch": {
+        "batch_id": "AMEND-1",
+        "ops": [
+          {"op": "amend", "booklet": "B1", "part": "P-001", "attachment": "补写附件一"},
+          {"op": "amend", "booklet": "B1", "part": "P-001", "attachment": "补写附件二"},
+          {"op": "publish", "version": "V2"}
+        ]
+      }
+    },
+    {"query_slot": {"version": "V1", "booklet": "B1", "slot": 0}},
+    {"query_slot": {"version": "V1", "booklet": "B1", "slot": 11}},
+    {"query_slot": {"version": "V2", "booklet": "B1", "slot": 0}},
+    {"search_export": {"booklet": "B1"}},
+    {
+      "batch": {
+        "batch_id": "WITHDRAW",
+        "ops": [
+          {"op": "withdraw", "booklet": "B1", "part": "P-002"},
+          {"op": "publish", "version": "V3"}
+        ]
+      }
+    },
+    {"query_slot": {"version": "V1", "booklet": "B1", "slot": 11}},
+    {"query_slot": {"version": "V3", "booklet": "B1", "slot": 11}},
+    {"query_slot": {"version": "V9", "booklet": "B1", "slot": 0}},
+    {"query_slot": {"version": "V3", "booklet": "B1", "slot": 10}},
+    {"search_export": {}}
+    ,
+    {
+      "batch": {
+        "batch_id": "STEAL-TOMBSTONE",
+        "ops": [
+          {"op": "register", "booklet": "B1", "part": "P-003", "slot": 11, "body": "想占用墓碑槽"}
+        ]
+      }
+    }
+  ]
+}

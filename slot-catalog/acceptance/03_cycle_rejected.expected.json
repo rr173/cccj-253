@@ -1,0 +1,176 @@
+{
+  "format": "slot-catalog-results/1",
+  "name": "03-cycle-rejected",
+  "results": [
+    {
+      "result": {
+        "applied": 5,
+        "batch_id": "SETUP",
+        "ok": true,
+        "published": [
+          "V1"
+        ]
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "applied": 1,
+        "batch_id": "EDGE-AB",
+        "ok": true,
+        "published": []
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "error": {
+          "batch_id": "BAD-CYCLE",
+          "code": "replacement_cycle",
+          "details": {
+            "cycle": [
+              "A",
+              "B",
+              "A"
+            ]
+          },
+          "message": "replacement cycle: A -> B -> A"
+        },
+        "ok": false
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "error": {
+          "batch_id": "BAD-SELF-LOOP",
+          "code": "replacement_cycle",
+          "details": {
+            "cycle": [
+              "A",
+              "A"
+            ]
+          },
+          "message": "replacement cycle: A -> A"
+        },
+        "ok": false
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "error": {
+          "batch_id": "BAD-EMPTY-SLOT-CHAIN",
+          "code": "part_not_found",
+          "details": {
+            "booklet": "B1",
+            "part": "GHOST"
+          },
+          "message": "part 'GHOST' is not registered in booklet 'B1'",
+          "op_index": 0
+        },
+        "ok": false
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "B",
+            "slot": 1,
+            "slot_label": "0001",
+            "title": null
+          },
+          "replaced": true,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "乙"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "A",
+          "title": null
+        },
+        "slot": 0,
+        "slot_label": "0000",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "applied": 2,
+        "batch_id": "PROVE-ROLLBACK",
+        "ok": true,
+        "published": [
+          "V2"
+        ]
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "X",
+            "slot": 2,
+            "slot_label": "0002",
+            "title": null
+          },
+          "replaced": false,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "回滚后重新登记成功"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "X",
+          "title": null
+        },
+        "slot": 2,
+        "slot_label": "0002",
+        "version": "V2"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "count": 2,
+        "entries": [
+          {
+            "booklet": "B1",
+            "part": "B",
+            "slot": 1,
+            "slot_label": "0001",
+            "title": null,
+            "value": {
+              "attachments": [],
+              "body": "乙"
+            }
+          },
+          {
+            "booklet": "B1",
+            "part": "X",
+            "slot": 2,
+            "slot_label": "0002",
+            "title": null,
+            "value": {
+              "attachments": [],
+              "body": "回滚后重新登记成功"
+            }
+          }
+        ],
+        "ok": true,
+        "type": "search_export"
+      },
+      "step": "search_export"
+    }
+  ]
+}

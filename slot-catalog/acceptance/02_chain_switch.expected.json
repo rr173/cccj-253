@@ -1,0 +1,222 @@
+{
+  "format": "slot-catalog-results/1",
+  "name": "02-chain-switch",
+  "results": [
+    {
+      "result": {
+        "applied": 6,
+        "batch_id": "SETUP",
+        "ok": true,
+        "published": [
+          "V1"
+        ]
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "applied": 2,
+        "batch_id": "CHAIN-ABC",
+        "ok": true,
+        "published": []
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "C",
+            "slot": 2,
+            "slot_label": "0002",
+            "title": "现行件丙"
+          },
+          "replaced": true,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "丙的正文"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "A",
+          "title": "旧件甲"
+        },
+        "slot": 0,
+        "slot_label": "0000",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "C",
+            "slot": 2,
+            "slot_label": "0002",
+            "title": "现行件丙"
+          },
+          "replaced": true,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "丙的正文"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "B",
+          "title": "旧件乙"
+        },
+        "slot": 1,
+        "slot_label": "0001",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "count": 2,
+        "entries": [
+          {
+            "booklet": "B1",
+            "part": "C",
+            "slot": 2,
+            "slot_label": "0002",
+            "title": "现行件丙",
+            "value": {
+              "attachments": [],
+              "body": "丙的正文"
+            }
+          },
+          {
+            "booklet": "B1",
+            "part": "D",
+            "slot": 3,
+            "slot_label": "0003",
+            "title": "未审件丁",
+            "value": {
+              "attachments": [],
+              "body": "丁的正文"
+            }
+          }
+        ],
+        "ok": true,
+        "type": "search_export"
+      },
+      "step": "search_export"
+    },
+    {
+      "result": {
+        "applied": 3,
+        "batch_id": "SWITCH-TO-INVISIBLE-D",
+        "ok": true,
+        "published": []
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "D",
+            "slot": 3,
+            "slot_label": "0003",
+            "title": "未审件丁"
+          },
+          "reason": "not_approved",
+          "replaced": true,
+          "status": "not_public"
+        },
+        "ok": true,
+        "printed": {
+          "part": "A",
+          "title": "旧件甲"
+        },
+        "slot": 0,
+        "slot_label": "0000",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "D",
+            "slot": 3,
+            "slot_label": "0003",
+            "title": "未审件丁"
+          },
+          "reason": "not_approved",
+          "replaced": true,
+          "status": "not_public"
+        },
+        "ok": true,
+        "printed": {
+          "part": "B",
+          "title": "旧件乙"
+        },
+        "slot": 1,
+        "slot_label": "0001",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "booklet": "B1",
+        "current": {
+          "endpoint": {
+            "part": "C",
+            "slot": 2,
+            "slot_label": "0002",
+            "title": "现行件丙"
+          },
+          "replaced": false,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "丙的正文"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "C",
+          "title": "现行件丙"
+        },
+        "slot": 2,
+        "slot_label": "0002",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "count": 1,
+        "entries": [
+          {
+            "booklet": "B1",
+            "part": "C",
+            "slot": 2,
+            "slot_label": "0002",
+            "title": "现行件丙",
+            "value": {
+              "attachments": [],
+              "body": "丙的正文"
+            }
+          }
+        ],
+        "ok": true,
+        "type": "search_export"
+      },
+      "step": "search_export"
+    }
+  ]
+}

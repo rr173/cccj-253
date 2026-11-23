@@ -1,0 +1,8 @@
+#!/bin/sh
+# Run the full test suite and the acceptance harness. Re-runnable.
+set -e
+cd "$(dirname "$0")"
+echo "== unit tests =="
+python3 -m unittest discover -s tests -t . -v
+echo "== acceptance =="
+python3 acceptance/run_acceptance.py

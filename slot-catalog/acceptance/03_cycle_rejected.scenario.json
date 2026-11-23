@@ -1,0 +1,63 @@
+{
+  "format": "slot-catalog-scenario/1",
+  "name": "03-cycle-rejected",
+  "steps": [
+    {
+      "batch": {
+        "batch_id": "SETUP",
+        "ops": [
+          {"op": "add_booklet", "booklet": "B1", "slot_width": 4},
+          {"op": "reserve", "booklet": "B1", "slots": [9]},
+          {"op": "register", "booklet": "B1", "part": "A", "body": "甲", "approved": true},
+          {"op": "register", "booklet": "B1", "part": "B", "body": "乙", "approved": true},
+          {"op": "publish", "version": "V1"}
+        ]
+      }
+    },
+    {
+      "batch": {
+        "batch_id": "EDGE-AB",
+        "ops": [
+          {"op": "replace", "booklet": "B1", "old": "A", "new": "B"}
+        ]
+      }
+    },
+    {
+      "batch": {
+        "batch_id": "BAD-CYCLE",
+        "ops": [
+          {"op": "register", "booklet": "B1", "part": "X", "body": "不应生效"},
+          {"op": "replace", "booklet": "B1", "old": "B", "new": "A"}
+        ]
+      }
+    },
+    {
+      "batch": {
+        "batch_id": "BAD-SELF-LOOP",
+        "ops": [
+          {"op": "replace", "booklet": "B1", "old": "A", "new": "A"}
+        ]
+      }
+    },
+    {
+      "batch": {
+        "batch_id": "BAD-EMPTY-SLOT-CHAIN",
+        "ops": [
+          {"op": "replace", "booklet": "B1", "old": "A", "new": "GHOST"}
+        ]
+      }
+    },
+    {"query_slot": {"version": "V1", "booklet": "B1", "slot": 0}},
+    {
+      "batch": {
+        "batch_id": "PROVE-ROLLBACK",
+        "ops": [
+          {"op": "register", "booklet": "B1", "part": "X", "body": "回滚后重新登记成功", "approved": true},
+          {"op": "publish", "version": "V2"}
+        ]
+      }
+    },
+    {"query_slot": {"version": "V2", "booklet": "B1", "slot": 2}},
+    {"search_export": {"booklet": "B1"}}
+  ]
+}

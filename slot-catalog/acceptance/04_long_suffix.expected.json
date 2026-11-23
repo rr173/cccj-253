@@ -1,0 +1,253 @@
+{
+  "format": "slot-catalog-results/1",
+  "name": "04-long-suffix",
+  "results": [
+    {
+      "result": {
+        "applied": 3002,
+        "batch_id": "BUILD",
+        "ok": true,
+        "published": []
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "applied": 1,
+        "batch_id": "BATCH-2",
+        "ok": true,
+        "published": [
+          "V1"
+        ]
+      },
+      "step": "publish"
+    },
+    {
+      "result": {
+        "applied": 2999,
+        "batch_id": "CHAIN",
+        "ok": true,
+        "published": []
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "booklet": "BIG",
+        "current": {
+          "endpoint": {
+            "part": "p1999",
+            "slot": 1999,
+            "slot_label": "1999",
+            "title": null
+          },
+          "replaced": true,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "body-p1999"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "p0",
+          "title": null
+        },
+        "slot": 0,
+        "slot_label": "0000",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "booklet": "BIG",
+        "current": {
+          "endpoint": {
+            "part": "p1999",
+            "slot": 1999,
+            "slot_label": "1999",
+            "title": null
+          },
+          "replaced": true,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "body-p1999"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "q7",
+          "title": null
+        },
+        "slot": 2007,
+        "slot_label": "2007",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "applied": 1,
+        "batch_id": "FLIP-TAIL",
+        "ok": true,
+        "published": []
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "booklet": "BIG",
+        "current": {
+          "endpoint": {
+            "part": "Z",
+            "slot": 3000,
+            "slot_label": "3000",
+            "title": null
+          },
+          "replaced": true,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "body-Z"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "p0",
+          "title": null
+        },
+        "slot": 0,
+        "slot_label": "0000",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "booklet": "BIG",
+        "current": {
+          "endpoint": {
+            "part": "Z",
+            "slot": 3000,
+            "slot_label": "3000",
+            "title": null
+          },
+          "replaced": true,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "body-Z"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "q7",
+          "title": null
+        },
+        "slot": 2007,
+        "slot_label": "2007",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "applied": 1,
+        "batch_id": "CUT-MID",
+        "ok": true,
+        "published": []
+      },
+      "step": "batch"
+    },
+    {
+      "result": {
+        "booklet": "BIG",
+        "current": {
+          "endpoint": {
+            "part": "p1000",
+            "slot": 1000,
+            "slot_label": "1000",
+            "title": null
+          },
+          "replaced": true,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "body-p1000"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "p3",
+          "title": null
+        },
+        "slot": 3,
+        "slot_label": "0003",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "booklet": "BIG",
+        "current": {
+          "endpoint": {
+            "part": "Z",
+            "slot": 3000,
+            "slot_label": "3000",
+            "title": null
+          },
+          "replaced": true,
+          "status": "public",
+          "value": {
+            "attachments": [],
+            "body": "body-Z"
+          }
+        },
+        "ok": true,
+        "printed": {
+          "part": "p1001",
+          "title": null
+        },
+        "slot": 1001,
+        "slot_label": "1001",
+        "version": "V1"
+      },
+      "step": "query_slot"
+    },
+    {
+      "result": {
+        "count": 2,
+        "entries": [
+          {
+            "booklet": "BIG",
+            "part": "p1000",
+            "slot": 1000,
+            "slot_label": "1000",
+            "title": null,
+            "value": {
+              "attachments": [],
+              "body": "body-p1000"
+            }
+          },
+          {
+            "booklet": "BIG",
+            "part": "Z",
+            "slot": 3000,
+            "slot_label": "3000",
+            "title": null,
+            "value": {
+              "attachments": [],
+              "body": "body-Z"
+            }
+          }
+        ],
+        "ok": true,
+        "type": "search_export"
+      },
+      "step": "search_export"
+    }
+  ]
+}
