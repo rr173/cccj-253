@@ -96,6 +96,60 @@ class CapacityExceeded(CatalogError):
     code = "capacity_exceeded"
 
 
+class MergeError(CatalogError):
+    """Base class for offline merge (合稿) failures."""
+
+    code = "merge_failed"
+
+
+class InvalidBranchFile(MergeError):
+    """A branch file is not a well-formed slot-catalog-branch/1 document."""
+
+    code = "invalid_branch_file"
+
+
+class BaseMismatch(MergeError):
+    """A branch was cataloged against different base bytes."""
+
+    code = "base_mismatch"
+
+
+class UnsupportedOp(MergeError):
+    """A branch batch contains an op the offline merge does not handle."""
+
+    code = "unsupported_op"
+
+
+class BranchInvalid(MergeError):
+    """A branch does not apply cleanly to the base on its own."""
+
+    code = "branch_invalid"
+
+
+class PartConflict(MergeError):
+    """Two branches registered the same part number in the same booklet."""
+
+    code = "part_conflict"
+
+
+class SlotConflict(MergeError):
+    """Two different parts explicitly claim the same slot."""
+
+    code = "slot_conflict"
+
+
+class EdgeConflict(MergeError):
+    """Branches made different net changes to the same replacement out-edge."""
+
+    code = "edge_conflict"
+
+
+class OutputExists(MergeError):
+    """The merge output path already exists and is never overwritten."""
+
+    code = "output_exists"
+
+
 class BatchError(CatalogError):
     """A batch failed validation; nothing from it was applied."""
 

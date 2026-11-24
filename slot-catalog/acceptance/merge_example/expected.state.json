@@ -1,0 +1,158 @@
+{
+  "batches": [
+    {
+      "batch_id": "SETUP",
+      "error": null,
+      "ok": true,
+      "ops": 6,
+      "published": [
+        "V1"
+      ],
+      "seq": 1
+    },
+    {
+      "batch_id": "BASE-2",
+      "error": null,
+      "ok": true,
+      "ops": 2,
+      "published": [],
+      "seq": 2
+    }
+  ],
+  "booklets": {
+    "B1": {
+      "edges": {
+        "P-001": "P-101",
+        "P-002": "P-201"
+      },
+      "parts": {
+        "P-001": {
+          "approved": true,
+          "attachments": [
+            "底稿补写一",
+            "甲补写一",
+            "乙补写一",
+            "乙补写二"
+          ],
+          "body": "件一正文",
+          "slot": 0,
+          "title": "件一",
+          "withdrawn": false
+        },
+        "P-002": {
+          "approved": true,
+          "attachments": [],
+          "body": "件二正文",
+          "slot": 1,
+          "title": "件二",
+          "withdrawn": true
+        },
+        "P-003": {
+          "approved": true,
+          "attachments": [],
+          "body": "件三正文",
+          "slot": 2,
+          "title": "件三",
+          "withdrawn": false
+        },
+        "P-101": {
+          "approved": true,
+          "attachments": [],
+          "body": "甲新件一正文",
+          "slot": 3,
+          "title": "甲新件一",
+          "withdrawn": false
+        },
+        "P-102": {
+          "approved": true,
+          "attachments": [],
+          "body": "甲新件二正文",
+          "slot": 200,
+          "title": "甲新件二",
+          "withdrawn": false
+        },
+        "P-201": {
+          "approved": true,
+          "attachments": [],
+          "body": "乙新件一正文",
+          "slot": 5,
+          "title": "乙新件一",
+          "withdrawn": false
+        },
+        "P-202": {
+          "approved": true,
+          "attachments": [],
+          "body": "乙新件二正文",
+          "slot": 4,
+          "title": "乙新件二",
+          "withdrawn": false
+        }
+      },
+      "slot_width": 3,
+      "slots": {
+        "0": {
+          "part": "P-001",
+          "state": "occupied"
+        },
+        "1": {
+          "part": "P-002",
+          "state": "tombstone"
+        },
+        "100": {
+          "part": null,
+          "state": "reserved"
+        },
+        "101": {
+          "part": null,
+          "state": "reserved"
+        },
+        "2": {
+          "part": "P-003",
+          "state": "occupied"
+        },
+        "200": {
+          "part": "P-102",
+          "state": "occupied"
+        },
+        "3": {
+          "part": "P-101",
+          "state": "occupied"
+        },
+        "4": {
+          "part": "P-202",
+          "state": "occupied"
+        },
+        "5": {
+          "part": "P-201",
+          "state": "occupied"
+        }
+      }
+    }
+  },
+  "counters": {
+    "batch_seq": 2,
+    "version_seq": 1
+  },
+  "format": "slot-catalog-state/1",
+  "versions": {
+    "V1": {
+      "records": {
+        "B1": {
+          "0": {
+            "part": "P-001",
+            "title": "件一"
+          },
+          "1": {
+            "part": "P-002",
+            "title": "件二"
+          },
+          "2": {
+            "part": "P-003",
+            "title": "件三"
+          }
+        }
+      },
+      "seq": 1
+    }
+  }
+}

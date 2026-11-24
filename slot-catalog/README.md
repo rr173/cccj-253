@@ -8,9 +8,10 @@
 
 ```sh
 cd slot-catalog
-python3 -m unittest discover -s tests -t . -v   # 单元测试（31 个）
+python3 -m unittest discover -s tests -t . -v   # 单元测试（67 个）
 python3 acceptance/run_acceptance.py            # 验收：跑场景并比对 golden
-./run_all.sh                                    # 上面两条一起
+python3 acceptance/merge_example/run_merge_example.py  # 离线合稿 CLI 验证
+./run_all.sh                                    # 上面三条一起
 ```
 
 CLI（从仓库根目录运行，或设 `PYTHONPATH` 指向仓库根目录）：
@@ -18,6 +19,7 @@ CLI（从仓库根目录运行，或设 `PYTHONPATH` 指向仓库根目录）：
 ```sh
 python3 -m slotcatalog run    SCENARIO.json                  # 执行场景文件
 python3 -m slotcatalog apply  STATE.json BATCH.json --out NEW.json  # 局部提交一个批次
+python3 -m slotcatalog merge  BASE.json BRANCH1.json BRANCH2.json [...] --out MERGED.json  # 离线合稿
 python3 -m slotcatalog query  STATE.json V1 B1 0007          # stable-slot 查询
 python3 -m slotcatalog export STATE.json --booklet B1        # 搜索导出
 ```
@@ -161,6 +163,78 @@ python3 -m slotcatalog export STATE.json --booklet B1        # 搜索导出
 `edge_not_found` `replacement_cycle` `capacity_exceeded`（批次失败时包在
 `batch_failed` 内，`error.code` 取因由码）。
 
+离线合稿另有：`invalid_branch_file` `base_mismatch` `unsupported_op`
+`branch_invalid` `part_conflict` `slot_conflict` `edge_conflict`
+`output_exists`（见下节）。
+
+## 离线合稿 `merge`
+
+纸册发出后，几组编目员可拿同一份目录底稿各自离线登记更正；`merge` 把
+按优先级排列的分支文件（命令行先列者优先级最高）合成一份可继续编目
+的状态——`apply`、`query`、`export` 均可直接接着用。
+
+```sh
+python3 -m slotcatalog merge base.json alpha.json beta.json --out merged.json
+```
+
+- 合稿状态写入 `--out`（已存在的目标一律拒绝覆盖，失败时不写出半成品）；
+  stdout 打印合稿报告（`slot-catalog-merge-report/1`），列出发生搬槽的
+  分支、册、件号和新旧槽号。
+- 保留底稿的已发版次与原有批次记录；各分支的局部批次不当作已进主目录，
+  合稿不发布新纸版。相同输入必得相同结果。
+
+### 分支文件（`slot-catalog-branch/1`）
+
+```json
+{"format": "slot-catalog-branch/1",
+ "branch": "alpha",
+ "base_sha256": "<底稿文件原始字节的 SHA-256>",
+ "batches": [{"batch_id": "JIA-1", "ops": [ … ]}]}
+```
+
+每个分支先在底稿副本上按原批次边界独立重放：底稿哈希不符
+（`base_mismatch`）、分支无效（`branch_invalid`，给出分支、批次、
+`op_index` 与因由）或含不合之操作（`unsupported_op`：发版、新建册、
+按数量预留）都拒绝合稿——分支不能靠别的分支补齐它引用的件。
+
+### 合稿规则
+
+- 底稿已有件一律留在原位，墓碑仍占槽；底稿预留只能由显式选槽的登记占用。
+- 不同分支登记同册同件号即冲突（`part_conflict`，即使内容相同）。
+- 显式预留与显式登记落点固定：同槽空预留合并；一个显式登记认领则由它
+  占用；不同件认领同一槽拒绝（`slot_conflict`）。
+- 未指定槽号的登记只把分支内落点当建议：能保留的原位保留（不让位给待
+  搬件），撞到固定槽须搬；几个建议撞同一自由槽时优先级最高的分支留在
+  原位。待搬件按分支优先级、分支内登记先后取本册最小剩余自由槽，不吃
+  空预留；容量不足整份失败（`capacity_exceeded`，指明用尽的册）。
+- 分支内已撤行的新件仍按自己的登记规则占用墓碑槽。册之间互不影响。
+- 底稿件的补写按分支优先级、分支内顺序接在原附件之后，同名附件不去重。
+- 审核、撤行、每件出边按分支终态相对底稿的净变化合入：回到原值不算改
+  动，多个相同改动只算一次；同一出边有不同改动（含删边与改指不同目
+  标）拒绝（`edge_conflict`）。
+- 合并后的替代图须满足目录原有规则；分支各自无环、合起来成环也拒绝
+  （`replacement_cycle`，指明成环的册和链）。
+
+### 可复跑示例
+
+`acceptance/merge_example/` 存有完整示例（底稿 + 两分支 + 期望报告与
+期望状态）：
+
+```sh
+python3 acceptance/merge_example/run_merge_example.py   # 全流程校验
+python3 acceptance/merge_example/gen_example.py         # 重新生成示例文件
+```
+
+手工复跑：
+
+```sh
+cd acceptance/merge_example
+python3 -m slotcatalog merge base.json branch-alpha.json branch-beta.json \
+    --out /tmp/merged.json          # 报告打印在 stdout
+python3 -m slotcatalog query /tmp/merged.json V1 B1 0001
+python3 -m slotcatalog export /tmp/merged.json --booklet B1
+```
+
 ## 验收场景与需求对照
 
 | 场景 / 测试 | 覆盖需求 |
@@ -169,7 +243,9 @@ python3 -m slotcatalog export STATE.json --booklet B1        # 搜索导出
 | `acceptance/02_chain_switch` | A→B→C 链、切到不可见 D 后 A/B 不再透露 C、C 作为合格终点独立存在、导出唯一性 |
 | `acceptance/03_cycle_rejected` | 环与自环整批不生效（回滚后可再登记同件号）、预留空槽进不了替代链 |
 | `acceptance/04_long_suffix`（`gen_long_suffix.py` 生成） | 2000 件长链 + 1000 汇入口共有长后缀；改一条尾边全体重指、历史版次表不变；中间断链只影响上游 |
+| `acceptance/merge_example`（`run_merge_example.py`） | 合稿 CLI 全流程：报告与状态 golden、合稿后 query/export/apply 可用、确定性、哈希不符与目标已存在的失败行为 |
 | `tests/test_catalog.py`（31 例） | 上述全部 + 跨册拒绝、版本表不可变、状态持久化往返、场景确定性、解析线性度（`follow_steps` 仪表） |
+| `tests/test_merge.py`（36 例） | 合稿：槽位固定/建议/搬让规则、空预留合并、容量失败、同件/同槽冲突、补写顺序与去重、净变化合入、出边冲突、合并成环、分支校验、CLI 行为 |
 
 ## 设计要点（为何满足"局部维护"）
 
@@ -184,8 +260,9 @@ python3 -m slotcatalog export STATE.json --booklet B1        # 搜索导出
 ## 目录结构
 
 ```
-slotcatalog/        # 包：catalog.py(核心) scenario.py(场景) __main__.py(CLI) errors.py
+slotcatalog/        # 包：catalog.py(核心) merge.py(离线合稿) scenario.py(场景) __main__.py(CLI) errors.py
 tests/              # 单元测试（python3 -m unittest discover -s tests -t . -v）
 acceptance/         # 场景 + golden + 运行器 + 长后缀场景生成器
+acceptance/merge_example/  # 离线合稿示例：底稿/分支/golden + 生成器 + CLI 验证器
 run_all.sh          # 一键跑全部测试与验收
 ```

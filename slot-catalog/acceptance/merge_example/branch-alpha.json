@@ -1,0 +1,59 @@
+{
+  "base_sha256": "42f8329a3575a5b8803c9af7737038579a2e87bdaddcd027bd6f729db533f487",
+  "batches": [
+    {
+      "batch_id": "JIA-1",
+      "ops": [
+        {
+          "approved": true,
+          "body": "甲新件一正文",
+          "booklet": "B1",
+          "op": "register",
+          "part": "P-101",
+          "title": "甲新件一"
+        },
+        {
+          "attachment": "甲补写一",
+          "booklet": "B1",
+          "op": "amend",
+          "part": "P-001"
+        },
+        {
+          "approved": true,
+          "booklet": "B1",
+          "op": "set_review",
+          "part": "P-003"
+        }
+      ]
+    },
+    {
+      "batch_id": "JIA-2",
+      "ops": [
+        {
+          "booklet": "B1",
+          "op": "reserve",
+          "slots": [
+            200
+          ]
+        },
+        {
+          "approved": true,
+          "body": "甲新件二正文",
+          "booklet": "B1",
+          "op": "register",
+          "part": "P-102",
+          "slot": 200,
+          "title": "甲新件二"
+        },
+        {
+          "booklet": "B1",
+          "new": "P-101",
+          "old": "P-001",
+          "op": "replace"
+        }
+      ]
+    }
+  ],
+  "branch": "alpha",
+  "format": "slot-catalog-branch/1"
+}

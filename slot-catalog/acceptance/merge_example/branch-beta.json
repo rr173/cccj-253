@@ -1,0 +1,56 @@
+{
+  "base_sha256": "42f8329a3575a5b8803c9af7737038579a2e87bdaddcd027bd6f729db533f487",
+  "batches": [
+    {
+      "batch_id": "YI-1",
+      "ops": [
+        {
+          "approved": true,
+          "body": "乙新件一正文",
+          "booklet": "B1",
+          "op": "register",
+          "part": "P-201",
+          "title": "乙新件一"
+        },
+        {
+          "approved": true,
+          "body": "乙新件二正文",
+          "booklet": "B1",
+          "op": "register",
+          "part": "P-202",
+          "title": "乙新件二"
+        },
+        {
+          "attachment": "乙补写一",
+          "booklet": "B1",
+          "op": "amend",
+          "part": "P-001"
+        },
+        {
+          "attachment": "乙补写二",
+          "booklet": "B1",
+          "op": "amend",
+          "part": "P-001"
+        }
+      ]
+    },
+    {
+      "batch_id": "YI-2",
+      "ops": [
+        {
+          "booklet": "B1",
+          "op": "withdraw",
+          "part": "P-002"
+        },
+        {
+          "booklet": "B1",
+          "new": "P-201",
+          "old": "P-002",
+          "op": "replace"
+        }
+      ]
+    }
+  ],
+  "branch": "beta",
+  "format": "slot-catalog-branch/1"
+}

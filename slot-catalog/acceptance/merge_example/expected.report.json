@@ -1,0 +1,20 @@
+{
+  "base_sha256": "42f8329a3575a5b8803c9af7737038579a2e87bdaddcd027bd6f729db533f487",
+  "branches": [
+    "alpha",
+    "beta"
+  ],
+  "format": "slot-catalog-merge-report/1",
+  "moves": [
+    {
+      "booklet": "B1",
+      "branch": "beta",
+      "from_slot": 3,
+      "from_slot_label": "003",
+      "part": "P-201",
+      "to_slot": 5,
+      "to_slot_label": "005"
+    }
+  ],
+  "ok": true
+}
