@@ -1,0 +1,4 @@
+{"batch_id": "WITHDRAW-AND-PUBLISH", "ops": [
+  {"op": "withdraw", "booklet": "B1", "part": "F"},
+  {"op": "publish", "version": "V2"}
+]}

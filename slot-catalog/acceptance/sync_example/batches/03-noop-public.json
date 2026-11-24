@@ -1,0 +1,5 @@
+{"batch_id": "NO-PUBLIC-CHANGE", "ops": [
+  {"op": "reserve", "booklet": "B1", "slots": [20, 21]},
+  {"op": "set_review", "booklet": "B1", "part": "D", "approved": false},
+  {"op": "set_review", "booklet": "B1", "part": "D", "approved": true}
+]}

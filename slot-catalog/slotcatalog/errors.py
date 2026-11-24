@@ -150,6 +150,56 @@ class OutputExists(MergeError):
     code = "output_exists"
 
 
+class SyncError(CatalogError):
+    """Base class for offline sync channel (同步通道) failures."""
+
+    code = "sync_error"
+
+
+class InvalidPackage(SyncError):
+    """A sync package is corrupt, truncated or malformed.
+
+    Covers: unparsable JSON, wrong format tag, missing or mistyped fields,
+    and content-digest mismatches (i.e. packages damaged or incompletely
+    received in transit).
+    """
+
+    code = "invalid_package"
+
+
+class CheckpointMismatch(SyncError):
+    """A package does not start from the mirror's current checkpoint.
+
+    Also raised when a mirror's first ever package is not a full package
+    and when a full package would move the mirror backwards.
+    """
+
+    code = "checkpoint_mismatch"
+
+
+class WrongSource(SyncError):
+    """A package belongs to a different sync source than the mirror's."""
+
+    code = "wrong_source"
+
+
+class UnknownCheckpoint(SyncError):
+    """The requested start checkpoint is not on this source's timeline."""
+
+    code = "unknown_checkpoint"
+
+
+class EntryNotFound(SyncError):
+    """A mirror lookup found no live entry for the printed index.
+
+    The slot may never have been printed in that version, or its entry
+    lapsed because the current replacement endpoint is not public; the
+    mirror keeps no tombstones and never falls back to stale content.
+    """
+
+    code = "entry_not_found"
+
+
 class BatchError(CatalogError):
     """A batch failed validation; nothing from it was applied."""
 

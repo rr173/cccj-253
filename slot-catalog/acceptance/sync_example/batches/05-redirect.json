@@ -1,0 +1,6 @@
+{"batch_id": "REDIRECT", "ops": [
+  {"op": "set_review", "booklet": "B1", "part": "D", "approved": false},
+  {"op": "replace", "booklet": "B1", "old": "B", "new": "D"},
+  {"op": "register", "booklet": "B1", "part": "E", "title": "件戊", "body": "戊的正文", "approved": true},
+  {"op": "register", "booklet": "B1", "part": "F", "title": "件己", "body": "己的正文", "approved": true}
+]}

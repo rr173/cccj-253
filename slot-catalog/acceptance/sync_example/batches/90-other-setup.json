@@ -1,0 +1,4 @@
+{"batch_id": "OTHER-SETUP", "ops": [
+  {"op": "add_booklet", "booklet": "B2", "slot_width": 3},
+  {"op": "register", "booklet": "B2", "part": "X", "title": "外部件", "body": "外部正文", "approved": true}
+]}
