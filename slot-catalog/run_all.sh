@@ -10,3 +10,5 @@ echo "== merge example =="
 python3 acceptance/merge_example/run_merge_example.py
 echo "== sync example =="
 python3 acceptance/sync_example/run_sync_example.py
+echo "== access example =="
+python3 acceptance/access_example/run_access_example.py

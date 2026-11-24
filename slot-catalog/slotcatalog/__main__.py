@@ -16,6 +16,13 @@ usage:
   python -m slotcatalog mirror-query M.json VERSION BOOKLET SLOT
   python -m slotcatalog mirror-export M.json [--booklet BOOKLET]
 
+Daily access statistics (访问统计):
+  python -m slotcatalog access-open       STATE.json RECORDS.json [--out ACCESS.json]
+  python -m slotcatalog access-records    ACCESS.json OPS.json [--out NEW.json]
+  python -m slotcatalog access-apply      ACCESS.json BATCH.json [--out NEW.json]
+  python -m slotcatalog access-report     ACCESS.json [--date YYYY-MM-DD] [--booklet B]
+  python -m slotcatalog access-checkpoint ACCESS.json
+
 All output is deterministic JSON (sorted keys, UTF-8, no timestamps).
 
 ``merge`` folds two or more offline branch files (priority: first listed
@@ -38,6 +45,16 @@ damaged packages are rejected with the installed data kept),
 
 ``query``/``export`` also accept a sync-source file and read the catalog
 inside it, so a source operator can compare its views against a mirror's.
+
+The ``access-*`` commands keep daily access statistics over the current
+catalog.  ``access-open`` opens a statistics file on a catalog state and
+loads a batch of access records, ``access-records`` applies one atomic
+group of record adds / corrections / revocations, ``access-apply`` applies
+one ordinary catalog correction batch (paper editions included) and folds
+its effect into the tallies, ``access-report`` prints counts per visit
+date and booklet, and ``access-checkpoint`` prints a light summary.  A
+rejected group or batch writes nothing: the statistics file is only
+replaced on success.
 """
 
 import json
@@ -45,6 +62,7 @@ import os
 import sys
 import tempfile
 
+from .access import ACCESS_FORMAT, AccessStats
 from .catalog import Catalog
 from .errors import BatchError, CatalogError, InvalidPackage, OutputExists
 from .merge import merge_branches
@@ -256,6 +274,103 @@ def _cmd_mirror_export(args):
     return 0
 
 
+def _cmd_access_open(args):
+    out = _pop_flag(args, "--out")
+    if len(args) != 2:
+        sys.stderr.write(
+            "usage: python -m slotcatalog access-open STATE.json RECORDS.json "
+            "[--out ACCESS.json]\n"
+        )
+        return 2
+    doc = _load_json(args[0])
+    if isinstance(doc, dict) and doc.get("format") == SOURCE_FORMAT:
+        doc = doc["catalog"]
+    if isinstance(doc, dict) and doc.get("format") == ACCESS_FORMAT:
+        raise CatalogError("%r is already an access-statistics file" % args[0])
+    stats = AccessStats.open(doc)
+    records = _load_json(args[1])
+    if isinstance(records, dict) and "ops" in records:
+        ops = records["ops"]
+        group_id = records.get("group_id")
+    elif isinstance(records, dict) and "records" in records:
+        ops = [dict(record, op="add") for record in records["records"]]
+        group_id = records.get("group_id")
+    elif isinstance(records, dict) and "id" in records:
+        ops = [dict(records, op="add")]
+        group_id = None
+    elif isinstance(records, list):
+        ops = [dict(record, op="add") for record in records]
+        group_id = None
+    else:
+        ops = []
+        group_id = None
+    result = stats.apply_records(ops, group_id=group_id)
+    _dump(stats.save(), out)
+    _dump(result)
+    return 0
+
+
+def _cmd_access_records(args):
+    out = _pop_flag(args, "--out")
+    if len(args) != 2:
+        sys.stderr.write(
+            "usage: python -m slotcatalog access-records ACCESS.json OPS.json "
+            "[--out NEW.json]\n"
+        )
+        return 2
+    stats = AccessStats.load(_load_json(args[0]))
+    group = _load_json(args[1])
+    if isinstance(group, list):
+        group = {"ops": group}
+    result = stats.apply_records(group.get("ops", []), group_id=group.get("group_id"))
+    _dump(stats.save(), out)
+    _dump(result)
+    return 0
+
+
+def _cmd_access_apply(args):
+    out = _pop_flag(args, "--out")
+    if len(args) != 2:
+        sys.stderr.write(
+            "usage: python -m slotcatalog access-apply ACCESS.json BATCH.json "
+            "[--out NEW.json]\n"
+        )
+        return 2
+    stats = AccessStats.load(_load_json(args[0]))
+    batch = _load_json(args[1])
+    if isinstance(batch, list):
+        batch = {"ops": batch}
+    result = stats.apply_batch(batch.get("ops", []), batch_id=batch.get("batch_id"))
+    _dump(stats.save(), out)
+    _dump(result)
+    return 0
+
+
+def _cmd_access_report(args):
+    date = _pop_flag(args, "--date")
+    booklet = _pop_flag(args, "--booklet")
+    if len(args) != 1:
+        sys.stderr.write(
+            "usage: python -m slotcatalog access-report ACCESS.json "
+            "[--date YYYY-MM-DD] [--booklet B]\n"
+        )
+        return 2
+    stats = AccessStats.load(_load_json(args[0]))
+    _dump(stats.report(date=date, booklet=booklet))
+    return 0
+
+
+def _cmd_access_checkpoint(args):
+    if len(args) != 1:
+        sys.stderr.write(
+            "usage: python -m slotcatalog access-checkpoint ACCESS.json\n"
+        )
+        return 2
+    stats = AccessStats.load(_load_json(args[0]))
+    _dump({"ok": True, "checkpoint": stats.checkpoint()})
+    return 0
+
+
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
     if not argv:
@@ -343,6 +458,16 @@ def main(argv=None):
             return _cmd_mirror_query(args)
         if command == "mirror-export":
             return _cmd_mirror_export(args)
+        if command == "access-open":
+            return _cmd_access_open(args)
+        if command == "access-records":
+            return _cmd_access_records(args)
+        if command == "access-apply":
+            return _cmd_access_apply(args)
+        if command == "access-report":
+            return _cmd_access_report(args)
+        if command == "access-checkpoint":
+            return _cmd_access_checkpoint(args)
         sys.stderr.write("unknown command %r\n" % command)
         sys.stderr.write(__doc__)
         return 2

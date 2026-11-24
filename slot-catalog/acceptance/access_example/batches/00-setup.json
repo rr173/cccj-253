@@ -1,0 +1,10 @@
+{"batch_id": "SETUP", "ops": [
+  {"op": "add_booklet", "booklet": "B1", "slot_width": 4},
+  {"op": "add_booklet", "booklet": "B2", "slot_width": 4},
+  {"op": "reserve", "booklet": "B1", "slots": [7]},
+  {"op": "register", "booklet": "B1", "part": "A", "title": "旧件甲", "body": "甲的正文", "approved": true},
+  {"op": "register", "booklet": "B1", "part": "B", "title": "中间件乙", "body": "乙的正文", "approved": true},
+  {"op": "register", "booklet": "B1", "part": "C", "title": "现行件丙", "body": "丙的正文", "approved": true},
+  {"op": "register", "booklet": "B2", "part": "Q", "title": "别册件", "body": "别册正文", "approved": true},
+  {"op": "publish", "version": "V1"}
+]}

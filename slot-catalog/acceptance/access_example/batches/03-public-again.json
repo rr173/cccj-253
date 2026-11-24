@@ -1,0 +1,3 @@
+{"batch_id": "PUBLIC-AGAIN", "ops": [
+  {"op": "set_review", "booklet": "B1", "part": "C", "approved": true}
+]}

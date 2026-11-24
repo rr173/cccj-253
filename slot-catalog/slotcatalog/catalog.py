@@ -658,9 +658,22 @@ class Catalog:
             )
         return slot_no
 
+    def public_endpoint_key(self, booklet_id, part_no):
+        """Endpoint key of a printed part, or ``None`` when it is not public.
+
+        A thin identity-only wrapper over :meth:`resolve_endpoint` for
+        readers that need to know *whether* the live endpoint may be shown
+        without reading its body (e.g. the access tally).
+        """
+        booklet = self._get_booklet(booklet_id)
+        endpoint = self.resolve_endpoint(booklet_id, part_no)
+        part = booklet.parts[endpoint]
+        if part["withdrawn"] or not part["approved"]:
+            return None
+        return {"booklet": booklet_id, "part": endpoint}
+
     def search_export(self, booklet_id=None):
         """Current visible catalog for the search side.
-
         Every approved, non-withdrawn visible endpoint appears exactly once,
         marked with the stable slot it owns.  Replaced parts and tombstones
         are excluded.  This traversal only happens when explicitly requested.

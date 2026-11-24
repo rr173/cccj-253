@@ -377,11 +377,7 @@ class SyncSource:
 
     def _public_endpoint(self, booklet_id, part_no):
         """Endpoint key of a printed part, or None when it is not public."""
-        endpoint = self.catalog.resolve_endpoint(booklet_id, part_no)
-        part = self.catalog._booklets[booklet_id].parts[endpoint]
-        if part["withdrawn"] or not part["approved"]:
-            return None
-        return {"booklet": booklet_id, "part": endpoint}
+        return self.catalog.public_endpoint_key(booklet_id, part_no)
 
     def _entry_value(self, key):
         version_id, booklet_id, slot_no = key

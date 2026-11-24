@@ -1,18 +1,20 @@
 # stable-slot-catalog 槽位目录
 
 公示系统的**可局部维护槽位目录**与**两种读视图**，外加一条面向公示镜像的
-**离线同步通道**。不生成纸质文档；纸版只留"各版曾正式列出的槽与身份"的
-不可变表。纯 Python 3 标准库，无第三方依赖，无权限系统、无远程接入。
+**离线同步通道**，以及一份按访问日期与册维护的**日访问统计**。不生成纸质
+文档；纸版只留"各版曾正式列出的槽与身份"的不可变表。纯 Python 3 标准库，
+无第三方依赖，无权限系统、无远程接入。
 
 ## 快速开始
 
 ```sh
 cd slot-catalog
-python3 -m unittest discover -s tests -t . -v   # 单元测试（117 个）
+python3 -m unittest discover -s tests -t . -v   # 单元测试（144 个）
 python3 acceptance/run_acceptance.py            # 验收：跑场景并比对 golden
 python3 acceptance/merge_example/run_merge_example.py  # 离线合稿 CLI 验证
 python3 acceptance/sync_example/run_sync_example.py    # 离线同步通道 CLI 验证
-./run_all.sh                                    # 上面四条一起
+python3 acceptance/access_example/run_access_example.py # 日访问统计 CLI 验证
+./run_all.sh                                    # 上面五条一起
 ```
 
 CLI（从仓库根目录运行，或设 `PYTHONPATH` 指向仓库根目录）：
@@ -34,6 +36,13 @@ python3 -m slotcatalog mirror-install  PKG.json [--mirror M.json] --out M2.json 
 python3 -m slotcatalog mirror-query    M.json V1 B1 0007               # 镜像纸册索引查询
 python3 -m slotcatalog mirror-export   M.json [--booklet B1]           # 镜像搜索视图
 python3 -m slotcatalog mirror-checkpoint M.json                        # 查看镜像检查点
+
+# 日访问统计（见下文）
+python3 -m slotcatalog access-open       STATE.json RECORDS.json [--out ACCESS.json]  # 开通统计 + 首批记录
+python3 -m slotcatalog access-records    ACCESS.json OPS.json [--out NEW.json]        # 一组记录新增/更正/撤销
+python3 -m slotcatalog access-apply      ACCESS.json BATCH.json [--out NEW.json]      # 目录批次（含发版）并更新统计
+python3 -m slotcatalog access-report     ACCESS.json [--date YYYY-MM-DD] [--booklet B1]  # 按日期与册的访问次数
+python3 -m slotcatalog access-checkpoint ACCESS.json                    # 统计文件摘要
 ```
 
 所有输出均为确定性 JSON（键排序、UTF-8、无时间戳、无随机数），可逐字节复跑。
@@ -183,6 +192,12 @@ python3 -m slotcatalog mirror-checkpoint M.json                        # 查看�
 `checkpoint_mismatch`（包与当前检查点不匹配，含首包非全量）、
 `wrong_source`（其他源的包）、`unknown_checkpoint`（源端不认识的起点）、
 `entry_not_found`（镜像索引无活入口）。
+
+访问统计另有：`invalid_access_record`（记录字段不合法）、`record_exists`
+（新增已存在的记录号）、`record_not_found`（更正/撤销不存在的记录号）、
+`duplicate_record_op`（同组重复操作同一记录号）；组失败时这些因由码包在
+`record_batch_failed` 语义内（与目录批次一致，`error.code` 取因由码并带
+`batch_id` 与 `op_index`）。
 
 ## 离线合稿 `merge`
 
@@ -356,6 +371,120 @@ python3 -m slotcatalog mirror-install /tmp/pkg-delta.json --mirror /tmp/mirror.j
 python3 -m slotcatalog mirror-query /tmp/mirror2.json V1 B1 0000
 ```
 
+## 日访问统计 `access-*`
+
+公示站要知道读者实际访问了哪些**现行公开件**。访问日志记的是纸册上的索引
+（纸版版次、册、逻辑槽号），统计必须用**当前目录**解释每笔访问，而不是把
+旧件号当成现行件，也不能把已不公开的访问算到旧正文名下。
+
+### 记录与分组
+
+一条访问记录：
+
+```json
+{"id": "r-001", "date": "2026-03-01", "version": "V1", "booklet": "B1",
+ "slot": 0, "count": 2}
+```
+
+- `id` 全局唯一，代表一笔访问；`date` 为 `YYYY-MM-DD`；`slot` 采用现有目录的
+  逻辑槽号（整数或定宽数字串皆可）；`count` 为正整数。
+- 一组记录操作（`{"group_id": …, "ops": [...]}`）可含：
+  `{"op": "add", …记录字段…}`、`{"op": "correct", "id": …, …完整新内容…}`、
+  `{"op": "revoke", "id": …}`。更正以新内容**整条**取代旧内容，撤销后该记录
+  不再参与统计。
+- 整组原子：重复新增、更正/撤销不存在的记录、同组内对同一 `id` 操作多次，
+  任一情况都**拒绝整组**且不写文件。失败码为因由码
+  （`record_exists` / `record_not_found` / `duplicate_record_op` /
+  `invalid_access_record`），并带 `batch_id`（组号）与 `op_index`。
+
+### 解释规则
+
+统计以**当前**目录解释每笔有效访问，按 (访问日期, 册) 归组：
+
+| 情形 | 计入 |
+|---|---|
+| 记录引用的版次、册或槽**未在纸版中正式列出** | 该日该册的 `unprinted`（未印入口） |
+| 正式列出的入口经现有替代关系找到的终点**当前不可公开**（撤行或未审核） | 该日该册的 `not_public`（不可公开） |
+| 其他正式入口 | 该日该册的对应**公开终点** |
+
+- 同一册中多个纸版入口指向同一终点时次数合并；不同日期和册分别统计。
+- 两类未归入公开终点的次数分别汇总；不可公开件的正文与附件不输出、不保存。
+- 每组同时给出 `total`（该组有效访问总次数），恒等于公开终点行之和
+  （`public_total`）加 `unprinted` 与 `not_public`。
+- 零值行不输出；整组为零时该 (日期, 册) 也不出现。
+
+报告格式 `slot-catalog-access-report/1`：
+
+```json
+{"ok": true, "format": "slot-catalog-access-report/1",
+ "days": [
+   {"date": "2026-03-01",
+    "booklets": [
+      {"booklet": "B1",
+       "public": [{"booklet": "B1", "part": "C", "count": 14}],
+       "public_total": 14, "unprinted": 0, "not_public": 0, "total": 14}]}]}
+```
+
+### 目录更正与发版
+
+统计与目录共用现有批次格式（`access-apply` 收一个批次文件，行为与 `apply`
+完全一致，含发版）。批次成功后统计反映**批次后的目录终态**：替代关系切换、
+终点审核或撤行会改变相关历史访问的归属；新发纸版会为该版新增索引，可能使
+原先未印的访问变为有效入口。批次失败时目录与统计都保持原样（不写文件）；
+`access-records` 与 `access-apply` 同样是"成功才整体写出"。
+
+### 持久化与重启
+
+`slot-catalog-access-stats/1` = 目录状态（`slot-catalog-state/1`）+ 访问段
+（记录表、逐记录归属、按 (日期, 册) 的计数桶）。`access-apply` /
+`access-records` 输出新文件，所有命令可把它当作一次重启；重开后的报告与
+重开前逐字节一致，恢复时不重新解析任何历史记录（归属随文件保存）。
+
+### 增量维护（性能形状）
+
+- 允许开通（`access-open`）时全量建立索引：已印件→(版次, 槽) 索引、
+  (版次, 册)→槽→件 索引、反向边索引、记录→入口索引；首批记录可一次载入。
+- 此后每个目录批次只重算它点名的件及其上游链经由上述索引能碰到的**正式
+  入口**，并且只移动这些入口上记录的**归属差量**；与该次更正无关的历史
+  访问逐条保留，不逐笔重算，也不扫描其他册的记录。新发纸版时只处理该版
+  新增的入口（该版是新的）。
+- 记录更正只触碰它离开和进入的少数计数桶。
+- 目录的加载、保存与校验开销不计入上述限制（未改动）。
+- `AccessStats.stats` 记录每批的 `entries_recomputed`（重解析入口数）、
+  `records_recomputed`（因归属变化而移动的记录数）与 `buckets_scanned`
+  （被触碰的计数桶数），测试对这些数字有断言。
+
+### 可复跑示例
+
+`acceptance/access_example/` 存有完整示例（批次文件 + 记录文件 + CLI 验证器）：
+
+```sh
+python3 acceptance/access_example/run_access_example.py   # 全流程校验
+```
+
+故事线：登记 A/B/C 并发 V1、B2 登记 Q → 开通统计并载入首批记录（含未印的
+预留槽与尚未发版的 V2）→ 链式替代 A→B→C（历史访问改归 C）→ C 撤审（计入
+不可公开，不输出正文）→ C 恢复审核（同批访问回到公开终点）→ 更正一条记录
+计数、撤销一条记录 → 发 V2（原先"未印"的 B2 访问成为有效入口）→ 三类非法
+记录组与成环批次均被整组拒绝且不写文件 → 重开统计文件报告逐字节一致。
+手工复跑：
+
+```sh
+cd acceptance/access_example
+python3 -m slotcatalog init --out /tmp/s0.json
+python3 -m slotcatalog apply /tmp/s0.json batches/00-setup.json --out /tmp/s1.json
+python3 -m slotcatalog access-open /tmp/s1.json records/00-initial.json --out /tmp/a0.json
+python3 -m slotcatalog access-report /tmp/a0.json
+python3 -m slotcatalog access-apply /tmp/a0.json batches/01-chain.json --out /tmp/a1.json
+python3 -m slotcatalog access-apply /tmp/a1.json batches/02-not-public.json --out /tmp/a2.json
+python3 -m slotcatalog access-report /tmp/a2.json          # C 的访问进入 not_public
+python3 -m slotcatalog access-apply /tmp/a2.json batches/03-public-again.json --out /tmp/a3.json
+python3 -m slotcatalog access-report /tmp/a3.json          # 同批访问回到公开终点
+python3 -m slotcatalog access-records /tmp/a3.json records/01-correct.json --out /tmp/a4.json
+python3 -m slotcatalog access-apply /tmp/a4.json batches/04-publish-v2.json --out /tmp/a5.json
+python3 -m slotcatalog access-report /tmp/a5.json
+```
+
 ## 验收场景与需求对照
 
 | 场景 / 测试 | 覆盖需求 |
@@ -369,6 +498,8 @@ python3 -m slotcatalog mirror-query /tmp/mirror2.json V1 B1 0000
 | `tests/test_catalog.py`（31 例） | 上述全部 + 跨册拒绝、版本表不可变、状态持久化往返、场景确定性、解析线性度（`follow_steps` 仪表） |
 | `tests/test_merge.py`（36 例） | 合稿：槽位固定/建议/搬让规则、空预留合并、容量失败、同件/同槽冲突、补写顺序与去重、净变化合入、出边冲突、合并成环、分支校验、CLI 行为 |
 | `tests/test_sync.py`（50 例） | 同步：检查点推进与失败回滚、重开一致、净增量（改回不发/中途公开不夹带/补写不动入口/失效删入口留文档）、两镜像汇合、包装载拒绝与原子性、镜像读视图、增量维护行数仪表、CLI 全流程 |
+| `acceptance/access_example`（`run_access_example.py`） | 日访问统计 CLI 全流程：三类归属、同终点合并、日期/册分组、记录更正与撤销、非法组整组拒绝、成环批次失败不动统计、发版使未印转有效、重开一致 |
+| `tests/test_access.py`（27 例） | 统计：解释规则与总数恒等式、正文不外泄、记录组原子性与字段校验、目录更正（切换/撤审/恢复/撤行/删边/发版）、增量工作仪表（无关册不扫描、无关历史不逐笔重算）、持久化往返与损坏拒绝、CLI |
 
 ## 设计要点（为何满足"局部维护"）
 
@@ -379,14 +510,19 @@ python3 -m slotcatalog mirror-query /tmp/mirror2.json V1 B1 0000
 - 所有变更经 `apply_batch` 原子提交：逐操作应用 + 批末图校验 + 失败回滚；
   没有"整册重生成"式更正路径。
 - 搜索导出是显式命令，只有发起时才遍历当前可见终点。
+- 访问统计同样只在开通时全量解析：此后目录批次经"脏件 + 反向边 + 已印槽"
+  索引找到受影响的正式入口，只移动这些入口上记录的归属差量；记录更正只动
+  少数计数桶。统计的维护在目录批次写路径之外（`AccessStats.apply_batch`
+  先让目录原子提交，成功后才折叠），目录本身不背统计的活。
 
 ## 目录结构
 
 ```
-slotcatalog/        # 包：catalog.py(核心) merge.py(离线合稿) sync.py(同步通道) scenario.py(场景) __main__.py(CLI) errors.py
+slotcatalog/        # 包：catalog.py(核心) merge.py(离线合稿) sync.py(同步通道) access.py(日访问统计) scenario.py(场景) __main__.py(CLI) errors.py
 tests/              # 单元测试（python3 -m unittest discover -s tests -t . -v）
 acceptance/         # 场景 + golden + 运行器 + 长后缀场景生成器
 acceptance/merge_example/  # 离线合稿示例：底稿/分支/golden + 生成器 + CLI 验证器
 acceptance/sync_example/   # 同步通道示例：批次文件 + CLI 验证器
+acceptance/access_example/ # 日访问统计示例：批次/记录文件 + CLI 验证器
 run_all.sh          # 一键跑全部测试与验收
 ```

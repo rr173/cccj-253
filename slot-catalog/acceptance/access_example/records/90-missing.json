@@ -1,0 +1,3 @@
+{"group_id": "BAD-MISSING", "ops": [
+  {"op": "correct", "id": "r-999", "date": "2026-03-03", "version": "V1", "booklet": "B1", "slot": 0, "count": 1}
+]}

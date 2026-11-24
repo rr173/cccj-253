@@ -1,0 +1,9 @@
+{"group_id": "LOAD", "ops": [
+  {"op": "add", "id": "r-001", "date": "2026-03-01", "version": "V1", "booklet": "B1", "slot": 0, "count": 2},
+  {"op": "add", "id": "r-002", "date": "2026-03-01", "version": "V1", "booklet": "B1", "slot": 1, "count": 3},
+  {"op": "add", "id": "r-003", "date": "2026-03-01", "version": "V1", "booklet": "B1", "slot": 2, "count": 4},
+  {"op": "add", "id": "r-004", "date": "2026-03-01", "version": "V1", "booklet": "B1", "slot": 7, "count": 1},
+  {"op": "add", "id": "r-005", "date": "2026-03-02", "version": "V1", "booklet": "B1", "slot": 0, "count": 6},
+  {"op": "add", "id": "r-006", "date": "2026-03-02", "version": "V1", "booklet": "B2", "slot": 0, "count": 5},
+  {"op": "add", "id": "r-007", "date": "2026-03-02", "version": "V2", "booklet": "B2", "slot": 0, "count": 8}
+]}

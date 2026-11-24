@@ -1,0 +1,4 @@
+{"batch_id": "CHAIN", "ops": [
+  {"op": "replace", "booklet": "B1", "old": "A", "new": "B"},
+  {"op": "replace", "booklet": "B1", "old": "B", "new": "C"}
+]}

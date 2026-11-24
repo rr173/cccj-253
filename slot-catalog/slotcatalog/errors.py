@@ -217,3 +217,52 @@ class BatchError(CatalogError):
         if self.op_index is not None:
             out["op_index"] = self.op_index
         return out
+
+
+class AccessError(CatalogError):
+    """Base class for access-statistics (访问统计) failures."""
+
+    code = "access_error"
+
+
+class InvalidAccessRecord(AccessError):
+    """An access record or record op has a malformed field."""
+
+    code = "invalid_access_record"
+
+
+class RecordExists(AccessError):
+    """An added record id is already present."""
+
+    code = "record_exists"
+
+
+class RecordNotFound(AccessError):
+    """A corrected or revoked record id is not present."""
+
+    code = "record_not_found"
+
+
+class DuplicateRecordOp(AccessError):
+    """One record group names the same record id more than once."""
+
+    code = "duplicate_record_op"
+
+
+class RecordBatchError(AccessError):
+    """A record group failed validation; none of its ops were applied."""
+
+    code = "record_batch_failed"
+
+    def __init__(self, batch_id, cause, op_index=None):
+        self.batch_id = batch_id
+        self.cause = cause
+        self.op_index = op_index
+        super().__init__("record batch %r failed: %s" % (batch_id, cause.message))
+
+    def to_dict(self):
+        out = self.cause.to_dict()
+        out["batch_id"] = self.batch_id
+        if self.op_index is not None:
+            out["op_index"] = self.op_index
+        return out

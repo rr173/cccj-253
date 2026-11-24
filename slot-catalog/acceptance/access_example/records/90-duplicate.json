@@ -1,0 +1,4 @@
+{"group_id": "BAD-DUP", "ops": [
+  {"op": "add", "id": "r-100", "date": "2026-03-03", "version": "V1", "booklet": "B1", "slot": 0, "count": 1},
+  {"op": "revoke", "id": "r-100"}
+]}

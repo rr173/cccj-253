@@ -1,0 +1,4 @@
+{"group_id": "FIX", "ops": [
+  {"op": "correct", "id": "r-003", "date": "2026-03-01", "version": "V1", "booklet": "B1", "slot": 2, "count": 9},
+  {"op": "revoke", "id": "r-004"}
+]}
